@@ -13,7 +13,7 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 echo "==> Installing dependencies..."
-uv pip install --system --requirement requirements.txt
+uv pip install --user --requirement requirements.txt
 
 echo "==> Installing pre-commit hooks..."
 pre-commit install
