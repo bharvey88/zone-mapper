@@ -13,9 +13,10 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 echo "==> Installing dependencies..."
-uv pip install --user --requirement requirements.txt
+python -m venv .venv
+. .venv/bin/activate && pip install -r requirements.txt
 
 echo "==> Installing pre-commit hooks..."
-pre-commit install
+. .venv/bin/activate && pre-commit install
 
 echo "==> Bootstrap completed!"
