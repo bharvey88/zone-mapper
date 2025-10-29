@@ -1,123 +1,129 @@
-# Integration Blueprint
+# Zone Mapper Home Assistant Integration
 
-This is a blueprint for creating a Home Assistant custom integration. It includes the patterns and features you'll want when building an integration, so you can focus on your specific device or service instead of boilerplate.
+Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes per‑zone occupancy sensors based on tracked X/Y entities. Designed to work with the companion card Zone Mapper Lovelace Card
 
-HAVE FUN! 😎
+## Features
 
-## Why?
+- Stores zone shapes and data as attributes on coordinate sensors (one per zone)
+- Creates an occupancy binary_sensor for each zone
+- Restores zones, tracked entities, and rotation after Home Assistant restarts
+- Listens for and processes updates from the card via a single service
+- Auto‑discovers and (re)loads platforms at startup based on existing entities
 
-By having custom integrations follow a common structure and include common features, it's easier for developers to help each other and for users to use them. This blueprint includes modern Home Assistant patterns so you don't have to figure them out yourself.
+## Installation
 
-If you think something is missing that would help other developers, please open a PR to add it.
+1. Copy this folder to your Home Assistant custom components directory:
 
-## What's included?
+```text
+/config/custom_components/zone_mapper
+```
 
-This blueprint demonstrates:
+2. Add to your `configuration.yaml`:
 
-- Config flow for user setup with validation
-- Reconfiguration support to update credentials
-- Translation keys for proper internationalization
-- Diagnostics support for troubleshooting
-- DataUpdateCoordinator pattern for efficient API polling
-- Multiple entity types (sensor, binary sensor, switch)
-- Async API client with proper error handling
-- Modern development tooling (Ruff, pre-commit, dev container)
+```yaml
+zone_mapper:
+```
 
-## Quick start
+3. Restart Home Assistant.
 
-1. Create a new repository using this template (click "Use this template" in GitHub)
-1. Open your new repository in Visual Studio Code devcontainer (preferably with the "`Dev Containers: Clone Repository in Named Container Volume...`" option)
-1. Rename all instances of `integration_blueprint` to `custom_components/<your_integration_domain>`
-1. Rename all instances of `Integration Blueprint` to `<Your Integration Name>`
-1. Run `scripts/develop` to start Home Assistant and test your integration
+Companion card: install `zone-mapper-card.js` under `/config/www` and add it as a Dashboard Resource.
 
-## Development scripts
+## Entities created
 
-This repository uses the [Scripts to Rule Them All](https://github.com/github/scripts-to-rule-them-all) pattern:
+Per location and zone (created on first update from the card):
 
-- `scripts/bootstrap` - One-time setup after cloning (installs dependencies and pre-commit hooks)
-- `scripts/setup` - Set up the project for the first time after cloning
-- `scripts/update` - Re-initialize dependencies after pulling new changes
-- `scripts/lint` - Run linting and auto-format code
-- `scripts/lint-check` - Check linting without making changes (for CI)
-- `scripts/develop` - Start Home Assistant in development mode
-- `scripts/help` - Display available scripts and their descriptions
+- Coordinate sensor
+  - Entity ID: `sensor.zone_mapper_<slug(location)>_zone_<id>`
+  - Attributes: `shape`, `data`, `entities`, `rotation_deg`
+  - Purpose: persists zone definition and tracks entities list for presence
 
-All scripts use the modern [uv](https://github.com/astral-sh/uv) package manager for faster dependency management.
+- Presence binary sensor
+  - Name: `<location> Zone <id> Presence`
+  - Device class: `occupancy`
+  - Purpose: turns on when any tracked target lies within the zone
 
-## What's in the blueprint?
+Notes:
 
-This repository contains multiple files to help you get started:
+- The card and backend use a Y‑down coordinate system (Y increases downward)
+- Presence math rotates tracked points by the stored `rotation_deg` so it matches the card’s rotated visuals
+- The `location` is normalized with Home Assistant's `slugify`, so punctuation and accents are stripped (e.g. `Living Room (Front)` → `living_room_front`)
 
-File | Purpose | Documentation
--- | -- | --
-`.devcontainer.json` | Development container configuration for VS Code | [Documentation](https://code.visualstudio.com/docs/remote/containers)
-`.pre-commit-config.yaml` | Pre-commit hooks for automatic code quality checks | [Documentation](https://pre-commit.com/)
-`pyproject.toml` | Python project configuration with Ruff settings | [Documentation](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/)
-`requirements.txt` | Python packages for development | [Documentation](https://pip.pypa.io/en/stable/user_guide/#requirements-files)
-`scripts/*` | Development scripts following Scripts to Rule Them All pattern | [Documentation](https://github.com/github/scripts-to-rule-them-all)
-`.github/ISSUE_TEMPLATE/*.yml` | Templates for issue tracking | [Documentation](https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository)
-`CONTRIBUTING.md` | Contribution guidelines | [Documentation](https://help.github.com/en/github/building-a-strong-community/setting-guidelines-for-repository-contributors)
-`LICENSE` | Project license | [Documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository)
-`README.md` | This file | [Documentation](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
+## Persistence and startup
 
-## Features explained
+- On HA startup, the integration examines the entity registry to discover existing Zone Mapper sensors and loads platforms per location.
+- Coordinate sensors restore their last attributes (zones, entities, rotation) and seed the in‑memory state to make presence work without user interaction.
 
-### Config flow
+## Service: zone_mapper.update_zone
 
-The [config_flow.py](custom_components/integration_blueprint/config_flow.py) file handles user setup. Users can add the integration through the UI, enter credentials, and the config flow validates them before creating a config entry.
+Single service to create/update/clear zones and update rotation and entity lists.
 
-The config flow also supports reconfiguration, so users can update their credentials without removing and re-adding the integration.
+Fields:
 
-### Translation keys
+- `location` (string, required): Friendly location name used by the card and for entity ids
+- `zone_id` (number, optional): Zone to update; omit for angle‑only update
+- `shape` (optional): `none` | `rect` | `ellipse` | `polygon`
+- `data` (optional): Shape payload (or null to clear)
+- `rotation_deg` (number, optional): −180..180, updates per‑location rotation when provided
+- `entities` (list, optional): Array of `{ x: <entity_id>, y: <entity_id> }` pairs for presence
 
-All user-facing strings use translation keys instead of hardcoded text. This makes it easy to support multiple languages. See [translations/en.json](custom_components/integration_blueprint/translations/en.json) for the structure.
+Shape payloads:
 
-### DataUpdateCoordinator
+- `rect`: `{ x_min, x_max, y_min, y_max }` (numeric; requires x_min < x_max and y_min < y_max)
+- `ellipse`: `{ cx, cy, rx, ry }` (numeric; rx, ry > 0)
+- `polygon`: `{ points: [ { x, y }, ... ] }` (3..32 points)
 
-The [coordinator.py](custom_components/integration_blueprint/coordinator.py) file uses DataUpdateCoordinator to fetch data efficiently. Instead of each entity polling the API separately, the coordinator fetches data once and shares it with all entities. This reduces API calls and handles errors consistently.
+Behavior:
 
-### Diagnostics
+- Send `shape: none` or `data: null` to clear a zone.
+- Provide only `rotation_deg` to update the device angle without changing any zone.
+- Providing `entities` replaces the tracked list for the location, used by all zone presence sensors there.
 
-The [diagnostics.py](custom_components/integration_blueprint/diagnostics.py) file provides debug information that users can download from the UI. This helps with troubleshooting without exposing sensitive data.
+Examples
 
-### Entity platforms
+Clear zone 1:
 
-The blueprint includes three entity types to demonstrate different patterns:
+```yaml
+service: zone_mapper.update_zone
+data:
+  location: Office
+  zone_id: 1
+  shape: none
+  data: null
+```
 
-- [sensor.py](custom_components/integration_blueprint/sensor.py) - Shows how to create a sensor with string values
-- [binary_sensor.py](custom_components/integration_blueprint/binary_sensor.py) - Shows a binary sensor with device class
-- [switch.py](custom_components/integration_blueprint/switch.py) - Shows a controllable entity that interacts with the API
+Update rotation only:
 
-### API client
+```yaml
+service: zone_mapper.update_zone
+data:
+  location: Office
+  rotation_deg: 30
+```
 
-The [api.py](custom_components/integration_blueprint/api.py) file provides an async API client with:
+Create/update a polygon:
 
-- Modern asyncio timeout handling (using `asyncio.timeout` instead of deprecated `async_timeout`)
-- Proper error handling with custom exceptions
-- Authentication support
+```yaml
+service: zone_mapper.update_zone
+data:
+  location: Office
+  zone_id: 2
+  shape: polygon
+  data:
+    points:
+      - { x: -500, y: 400 }
+      - { x: 300,  y: 600 }
+      - { x: 0,    y: 1200 }
+```
 
-### Pre-commit hooks
+## Troubleshooting
 
-The repository uses [pre-commit](https://pre-commit.com/) to automatically check and format code before commits. The hooks run Ruff for fast linting and formatting. They're installed automatically when you run `scripts/bootstrap`.
+- Service not found: confirm the integration is installed and `zone_mapper:` is present in configuration.yaml
+- Zones don’t persist: check the coordinate sensor attributes; they should include `shape` and `data` (and `rotation_deg` if set)
+- Presence never turns on: verify tracked X/Y sensor states are numeric and confirm the point lies within the zone
+- Entities missing after restart: draw zones once to initialize entity creation; subsequent restarts should restore automatically
 
-### Development container
+## Development notes
 
-The [.devcontainer.json](.devcontainer.json) file configures a VS Code development container with Python 3.13, all required extensions, and proper settings. This gives you a working development environment without manual setup.
-
-## Next steps
-
-These are some next steps you may want to look into:
-
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started
-- Add brand images (logo/icon) to https://github.com/home-assistant/brands
-- Create your first release
-- Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/)
-- Submit your integration to [HACS](https://hacs.xyz/docs/publish/start)
-
-## Resources
-
-- [Home Assistant developer documentation](https://developers.home-assistant.io/)
-- [Creating a custom integration](https://developers.home-assistant.io/docs/creating_component_index)
-- [Config flow documentation](https://developers.home-assistant.io/docs/config_entries_config_flow_handler)
-- [DataUpdateCoordinator documentation](https://developers.home-assistant.io/docs/integration_fetching_data)
+- Platforms: `sensor` (coordinates storage) and `binary_sensor` (presence)
+- Event bus: fires `zone_mapper_zone_updated` to notify platform entities of changes
+- Constants and limits are defined in `const.py` (e.g., `POLYGON_MAX_POINTS = 32`)
