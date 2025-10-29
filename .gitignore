@@ -32,3 +32,4 @@ home-assistant_v2.db*
 *.temp
 .DS_Store
 Thumbs.db
+.github/copilot-instructions.md

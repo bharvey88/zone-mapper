@@ -5,6 +5,8 @@ default_config:
 homeassistant:
   debug: true
 
+zone_mapper:
+
 # https://www.home-assistant.io/integrations/logger/
 logger:
   default: info

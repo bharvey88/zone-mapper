@@ -1,0 +1,64 @@
+update_zone:
+  name: Update Zone
+  description: "Create, update, or clear a zone definition (shape + data). To clear a zone, send data: null."
+  fields:
+    location:
+      name: Location Name
+      description: Friendly location label used by the card; Home Assistant slugify normalization is applied when building entity_ids
+      required: true
+      example: Kitchen
+      selector:
+        text: {}
+    zone_id:
+      name: Zone ID
+      description: The numeric zone identifier (1..N)
+      required: false
+      example: 1
+      selector:
+        number:
+          min: 1
+          max: 32
+    shape:
+      name: Shape
+      description: Shape of the zone (none, rect, ellipse, polygon). Use 'none' to clear.
+      required: false
+      selector:
+        select:
+          options:
+            - none
+            - rect
+            - ellipse
+            - polygon
+    data:
+      name: Shape Data
+      description: "Shape data object or null. For none: null. For rect: {x_min,x_max,y_min,y_max}. For ellipse: {cx,cy,rx,ry}. For polygon: {points:[{x,y},...]}"
+      required: false
+      selector:
+        object: {}
+    name:
+      name: Zone Name
+      description: Optional friendly name for the zone. When provided, entity friendly names will be updated.
+      required: false
+      selector:
+        text: {}
+    delete:
+      name: Delete Zone
+      description: If true, deletes the zone and removes the associated entities for this zone.
+      required: false
+      selector:
+        boolean: {}
+    rotation_deg:
+      name: Rotation Angle (deg)
+      description: Optional device rotation angle (-180..180). If provided without zone fields, only the angle is updated for the location.
+      required: false
+      selector:
+        number:
+          min: -180
+          max: 180
+          step: 1
+    entities:
+      name: Tracked Entities
+      description: Optional list of x/y entity id pairs to evaluate presence
+      required: false
+      selector:
+        object: {}
