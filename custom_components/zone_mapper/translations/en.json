@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/ludeeus/integration_blueprint",
+                "description": "If you need help with the configuration have a look here: https://github.com/WestwardWinds/zone-mapper",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -41,17 +41,17 @@
     },
     "entity": {
         "sensor": {
-            "integration_blueprint": {
+            "zone_mapper": {
                 "name": "Sensor"
             }
         },
         "binary_sensor": {
-            "integration_blueprint": {
+            "zone_mapper": {
                 "name": "Binary sensor"
             }
         },
         "switch": {
-            "integration_blueprint": {
+            "zone_mapper": {
                 "name": "Switch"
             }
         }
