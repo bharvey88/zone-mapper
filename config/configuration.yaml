@@ -11,7 +11,7 @@ zone_mapper:
 logger:
   default: info
   logs:
-    custom_components.integration_blueprint: debug
+    custom_components.zone_mapper: debug
   filters:
     homeassistant.components.go2rtc:
       - "Could not find go2rtc docker binary"
