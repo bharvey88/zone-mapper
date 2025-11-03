@@ -1,4 +1,4 @@
-# Zone Mapper Home Assistant Integration
+# Zone Mapper HACS Integration
 
 ![zone-mapper-hero](./images/hero.png)
 
@@ -44,6 +44,7 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
   - Click on the card when you find it
   - Click the `Download` button at the bottom right
   - Repeat for lovelace card
+  - Restart Home Assistant
 
 ### Manual Installation
 
@@ -185,3 +186,4 @@ data:
 - Platforms: `sensor` (coordinates storage) and `binary_sensor` (presence)
 - Event bus: fires `zone_mapper_zone_updated` to notify platform entities of changes
 - Constants and limits are defined in `const.py` (e.g., `POLYGON_MAX_POINTS = 32`)
+
