@@ -1,8 +1,8 @@
 # Zone Mapper Home Assistant Integration
-![zone-mapper-hero](/images/hero.png)
+
+![zone-mapper-hero](./images/hero.png)
 
 Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes per‑zone occupancy sensors based on tracked X/Y entities.
-
 
 > [!WARNING]
 > This integration requires the Zone Mapper lovelace card for functionality. Install it from HACS or from [the repository.](put link here)
@@ -63,14 +63,12 @@ zone_mapper:
 
 Companion card: copy `zone-mapper-card.js` under `/config/www` and add it as a Dashboard Resource.
 
-
 ## Troubleshooting
 
 - Service not found: confirm the integration is installed and `zone_mapper:` is present in configuration.yaml
 - Zones don’t persist: check the coordinate sensor attributes; they should include `shape`, `data`, and `entities`, (and `rotation_deg` if set)
 - Presence never turns on: verify tracked X/Y sensor states are numeric and confirm the point lies within the zone
 - Entities missing after restart: draw zones once to initialize entity creation; subsequent restarts should restore automatically
-
 
 ## Entities created
 
@@ -122,8 +120,8 @@ Behavior:
 - Send `shape: none` or `data: null` to clear a zone.
 - Provide only `rotation_deg` to update the device angle without changing any zone.
 - Providing `entities` replaces the tracked list for the location, used by all zone presence sensors there.
- - `name` updates the friendly names of the coordinate and presence entities for the zone.
- - `delete: true` removes the zone and its entities. Rotation and entities are location‑wide and can be updated without `zone_id`.
+- `name` updates the friendly names of the coordinate and presence entities for the zone.
+- `delete: true` removes the zone and its entities. Rotation and entities are location‑wide and can be updated without `zone_id`.
 
 Examples
 
@@ -181,8 +179,6 @@ data:
   zone_id: 1
   delete: true
 ```
-
-
 
 ## Development notes
 
