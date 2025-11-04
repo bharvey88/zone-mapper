@@ -16,6 +16,7 @@ from homeassistant.util import slugify
 if TYPE_CHECKING:
     from collections.abc import Callable, Coroutine, Iterable
 
+    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import Event, HomeAssistant, ServiceCall
     from homeassistant.helpers.typing import ConfigType
 
@@ -477,10 +478,51 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     hass.bus.async_listen_once(
         EVENT_HOMEASSISTANT_STARTED, _build_bootstrap_callback(hass, config)
     )
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_UPDATE_ZONE,
-        _build_update_zone_handler(hass, config),
-        schema=UPDATE_ZONE_SERVICE_SCHEMA,
-    )
+    if not hass.services.has_service(DOMAIN, SERVICE_UPDATE_ZONE):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_UPDATE_ZONE,
+            _build_update_zone_handler(hass, config),
+            schema=UPDATE_ZONE_SERVICE_SCHEMA,
+        )
+    return True
+
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """
+    Set up Zone Mapper from a config entry.
+
+    This registers the service (if not already present) and bootstraps any
+    restored entities from the registry so platforms load without requiring YAML.
+    """
+    _get_integration_data(hass)
+    _ = entry
+
+    # Ensure service is registered only once across YAML and UI setups.
+    if not hass.services.has_service(DOMAIN, SERVICE_UPDATE_ZONE):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_UPDATE_ZONE,
+            _build_update_zone_handler(hass, {}),
+            schema=UPDATE_ZONE_SERVICE_SCHEMA,
+        )
+
+    # Bootstrap entities either at startup or immediately if HA is already running.
+    bootstrap_cb = _build_bootstrap_callback(hass, {})
+    if getattr(hass, "is_running", False):
+        hass.async_create_task(bootstrap_cb(None))
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, bootstrap_cb)
+
+    return True
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """
+    Unload a config entry for Zone Mapper.
+
+    The integration stores state in memory and uses a shared service; nothing to
+    unload per-entry at this time.
+    """
+    _ = (hass, entry)
     return True
