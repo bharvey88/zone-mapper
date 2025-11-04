@@ -45,6 +45,10 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
   - Click the `Download` button at the bottom right
   - Repeat for lovelace card
   - Restart Home Assistant
+  - Go to `Devices and Services`
+  - Click `Add Integration`
+  - Search `Zone Mapper`
+  - Add `Zone Mapper`
 
 ### Manual Installation
 
