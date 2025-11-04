@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/WestwardWinds/zone-mapper",
+                "description": "If you need help with the configuration have a look here: https://github.com/ApolloAutomation/zone-mapper",
                 "data": {
                     "username": "Username",
                     "password": "Password"

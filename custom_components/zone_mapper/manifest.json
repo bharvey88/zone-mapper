@@ -2,12 +2,13 @@
   "domain": "zone_mapper",
   "name": "Zone Mapper",
   "codeowners": [
-    "@westwardwinds"
+    "@ApolloAutomation",
+    "@WestwardWinds"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/westwardwinds/zone-mapper",
+  "documentation": "https://github.com/ApolloAutomation/zone-mapper",
   "integration_type": "service",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/westwardwinds/zone-mapper/issues",
+  "issue_tracker": "https://github.com/ApolloAutomation/zone-mapper/issues",
   "version": "1.0.0"
 }

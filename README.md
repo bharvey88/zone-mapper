@@ -5,7 +5,7 @@
 Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes per‑zone occupancy sensors based on tracked X/Y entities.
 
 > [!WARNING]
-> This integration requires the Zone Mapper lovelace card for functionality. Install it from HACS or from [the repository.](put link here)
+> This integration requires the Zone Mapper lovelace card for functionality. Install it from HACS or from [the repository.](https://github.com/ApolloAutomation/zone-mapper-card)
 
 ## Features
 
@@ -17,7 +17,7 @@ Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes
 
 ## Installation
 
-There are two ways to install this integration. Both this integration and [the lovelace card](put link here) **must** be installed
+There are two ways to install this integration. Both this integration and [the lovelace card](https://github.com/ApolloAutomation/zone-mapper-card) **must** be installed
 
 ### With HACS (Recommended)
 
@@ -66,7 +66,7 @@ zone_mapper:
 
 3. Restart Home Assistant.
 
-Companion card: copy `zone-mapper-card.js` under `/config/www` and add it as a Dashboard Resource.
+4. Companion card: download `zone-mapper-card.js` from [the card repo](https://github.com/ApolloAutomation/zone-mapper-card) under `/config/www` and add it as a Dashboard Resource.
 
 ## Troubleshooting
 
