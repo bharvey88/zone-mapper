@@ -33,7 +33,7 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
   - Go to `HACS` in your Home Assistant sidebar
   - CLick on the 3 dots in the upper right corner
   - Click "Custom repositories"
-  - Add this URL to the repository: `put repo link here`
+  - Add this URL to the repository: [https://github.com/ApolloAutomation/zone-mapper](https://github.com/ApolloAutomation/zone-mapper)
   - Select `Integration` for the type
   - Click the `ADD` button
 
