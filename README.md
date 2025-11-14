@@ -190,4 +190,3 @@ data:
 - Platforms: `sensor` (coordinates storage) and `binary_sensor` (presence)
 - Event bus: fires `zone_mapper_zone_updated` to notify platform entities of changes
 - Constants and limits are defined in `const.py` (e.g., `POLYGON_MAX_POINTS = 32`)
-
