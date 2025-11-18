@@ -312,7 +312,7 @@ class ZonePresenceBinarySensor(BinarySensorEntity):
         """Handle state change of a tracked entity."""
         self.async_schedule_update_ha_state(force_refresh=True)
 
-    def update(self) -> None:
+    async def async_update(self) -> None:
         """Fetch new state data for the sensor."""
         zone_def, rotation_raw = self._resolve_zone_definition()
 
@@ -379,7 +379,6 @@ class ZonePresenceBinarySensor(BinarySensorEntity):
             if x_val == 0.0 and y_val == 0.0:
                 return None
             return x_val, y_val
-        # Unreachable but keeps structure explicit.
 
     @staticmethod
     def _states_are_valid(x_state: State | None, y_state: State | None) -> bool:
