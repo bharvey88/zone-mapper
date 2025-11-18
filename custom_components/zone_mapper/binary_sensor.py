@@ -370,9 +370,16 @@ class ZonePresenceBinarySensor(BinarySensorEntity):
         if x_state is None or y_state is None:
             return None
         try:
-            return float(x_state.state), float(y_state.state)
+            x_val = float(x_state.state)
+            y_val = float(y_state.state)
         except (TypeError, ValueError):
             return None
+        else:
+            # Ignore origin (0,0) so default or uninitialized readings are skipped.
+            if x_val == 0.0 and y_val == 0.0:
+                return None
+            return x_val, y_val
+        # Unreachable but keeps structure explicit.
 
     @staticmethod
     def _states_are_valid(x_state: State | None, y_state: State | None) -> bool:
