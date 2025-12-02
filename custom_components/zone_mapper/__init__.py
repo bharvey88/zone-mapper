@@ -526,3 +526,22 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """
     _ = (hass, entry)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """
+    Remove a config entry.
+
+    Since this integration uses legacy platform loading which doesn't associate
+    entities with the config entry, we must manually clean them up from the registry.
+    """
+    _ = entry
+    registry = er.async_get(hass)
+    entities_to_remove = [
+        entry.entity_id
+        for entry in registry.entities.values()
+        if entry.platform == DOMAIN
+    ]
+
+    for entity_id in entities_to_remove:
+        registry.async_remove(entity_id)
