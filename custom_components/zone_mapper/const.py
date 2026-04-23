@@ -47,6 +47,21 @@ POLYGON_MIN_POINTS = 3
 COORD_SENSOR_UNIQUE_ID_FMT = "zone_mapper_{location}_zone_{zone_id}"
 PRESENCE_SENSOR_UNIQUE_ID_FMT = "zone_mapper_{location}_zone_{zone_id}_presence"
 
+# Frontend resource registration
+FRONTEND_SCRIPT_URL_FMT = "/zone_mapper_static/zone-mapper-card-{version}.js"
+FRONTEND_SCRIPT_FILENAME = "zone-mapper-card.js"
+FRONTEND_REGISTERED_FLAG = "frontend_registered"
+
+# Options flow / auto-view seeding
+CONF_AUTO_CREATE_VIEW = "auto_create_view"
+DEFAULT_AUTO_CREATE_VIEW = True
+SEEDED_DEFAULT_VIEW_FLAG = "seeded_default_view"
+AUTO_VIEW_TITLE = "Zone Mapper"
+AUTO_VIEW_PATH = "zone-mapper"
+AUTO_VIEW_ICON = "mdi:map-marker-radius"
+AUTO_VIEW_PLACEHOLDER_LOCATION = "Home"
+CARD_TYPE = "custom:zone-mapper-card"
+
 # Log / warning templates
 WARN_POLY_INSUFFICIENT = (
     "Polygon zone %s in location '%s' has insufficient points (<3); clearing zone."

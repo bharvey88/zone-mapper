@@ -25,6 +25,20 @@
             "already_configured": "This entry is already configured."
         }
     },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Zone Mapper options",
+                "description": "Configure first-run behavior.",
+                "data": {
+                    "auto_create_view": "Auto-create a Zone Mapper view on first setup"
+                },
+                "data_description": {
+                    "auto_create_view": "Appends a 'Zone Mapper' view with the card to your default dashboard the first time this integration is set up. Turn off before adding the integration to skip this. Once the view is created (or skipped), it won't be re-added."
+                }
+            }
+        }
+    },
     "exceptions": {
         "authentication_failed": {
             "message": "Authentication failed during data update."

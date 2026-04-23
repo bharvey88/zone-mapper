@@ -34,14 +34,17 @@ from .const import (
     ATTR_X_MIN,
     ATTR_Y_MAX,
     ATTR_Y_MIN,
+    CONF_AUTO_CREATE_VIEW,
     COORD_SENSOR_UNIQUE_ID_FMT,
     DATA_LOCATIONS,
     DATA_PLATFORMS_LOADED,
+    DEFAULT_AUTO_CREATE_VIEW,
     DOMAIN,
     EVENT_ZONE_UPDATED,
     POLYGON_MAX_POINTS,
     POLYGON_MIN_POINTS,
     PRESENCE_SENSOR_UNIQUE_ID_FMT,
+    SEEDED_DEFAULT_VIEW_FLAG,
     SERVICE_UPDATE_ZONE,
     SHAPE_ELLIPSE,
     SHAPE_NONE,
@@ -57,6 +60,7 @@ from .const import (
     WARN_RECT_INVALID,
     WARN_RECT_NON_NUM,
 )
+from .frontend import async_register_card_resource, async_seed_default_view
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -475,6 +479,7 @@ UPDATE_ZONE_SERVICE_SCHEMA = vol.Schema(
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register Zone Mapper services and bootstrap stored entities."""
     _get_integration_data(hass)
+    await async_register_card_resource(hass)
     hass.bus.async_listen_once(
         EVENT_HOMEASSISTANT_STARTED, _build_bootstrap_callback(hass, config)
     )
@@ -488,15 +493,47 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     return True
 
 
+def _auto_create_view_enabled(entry: ConfigEntry) -> bool:
+    value = entry.options.get(CONF_AUTO_CREATE_VIEW, DEFAULT_AUTO_CREATE_VIEW)
+    return bool(value)
+
+
+async def _schedule_view_seeding(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Seed the default Lovelace view once HA is fully started."""
+    if entry.data.get(SEEDED_DEFAULT_VIEW_FLAG):
+        return
+    if not _auto_create_view_enabled(entry):
+        return
+
+    async def _run(_event: Event | None = None) -> None:
+        if entry.data.get(SEEDED_DEFAULT_VIEW_FLAG):
+            return
+        if not _auto_create_view_enabled(entry):
+            return
+        seeded = await async_seed_default_view(hass)
+        if seeded:
+            hass.config_entries.async_update_entry(
+                entry,
+                data={**entry.data, SEEDED_DEFAULT_VIEW_FLAG: True},
+            )
+
+    if getattr(hass, "is_running", False):
+        hass.async_create_task(_run(None))
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _run)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """
     Set up Zone Mapper from a config entry.
 
-    This registers the service (if not already present) and bootstraps any
-    restored entities from the registry so platforms load without requiring YAML.
+    Registers the bundled card as a frontend resource, registers the update
+    service, bootstraps any restored entities, and (once) seeds a default
+    Lovelace view so new users see the card immediately.
     """
     _get_integration_data(hass)
-    _ = entry
+
+    await async_register_card_resource(hass)
 
     # Ensure service is registered only once across YAML and UI setups.
     if not hass.services.has_service(DOMAIN, SERVICE_UPDATE_ZONE):
@@ -513,6 +550,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.async_create_task(bootstrap_cb(None))
     else:
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, bootstrap_cb)
+
+    await _schedule_view_seeding(hass, entry)
 
     return True
 

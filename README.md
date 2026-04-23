@@ -4,8 +4,7 @@
 
 Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes per‑zone occupancy sensors based on tracked X/Y entities.
 
-> [!WARNING]
-> This integration requires the Zone Mapper lovelace card for functionality. Install it from HACS or from [the repository.](https://github.com/ApolloAutomation/zone-mapper-card)
+Starting with 1.1.0, this integration bundles the [Zone Mapper card](https://github.com/ApolloAutomation/zone-mapper-card) and registers it as a frontend resource automatically, so HACS users only need a single install. The card repo is still the source of truth for the card JS and is used for manual installs and development.
 
 ## Features
 
@@ -14,10 +13,10 @@ Backend for the Zone Mapper Lovelace card. Persists zone definitions and exposes
 - Restores zones, tracked entities, and rotation after Home Assistant restarts
 - Listens for and processes updates from the card via a single service
 - Auto‑discovers and (re)loads platforms at startup based on existing entities
+- Bundles the companion Lovelace card and registers it as a frontend resource
+- Seeds a "Zone Mapper" view with the card on the default dashboard the first time the integration is set up (storage‑mode dashboards only, opt‑out available in integration options)
 
 ## Installation
-
-There are two ways to install this integration. Both this integration and [the lovelace card](https://github.com/ApolloAutomation/zone-mapper-card) **must** be installed
 
 ### With HACS (Recommended)
 
@@ -31,7 +30,7 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
 - **Add this custom repository to HACS:**
 
   - Go to `HACS` in your Home Assistant sidebar
-  - CLick on the 3 dots in the upper right corner
+  - Click on the 3 dots in the upper right corner
   - Click "Custom repositories"
   - Add this URL to the repository: [https://github.com/ApolloAutomation/zone-mapper](https://github.com/ApolloAutomation/zone-mapper)
   - Select `Integration` for the type
@@ -43,12 +42,13 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
   - Search for `Zone Mapper` in HACS
   - Click on the card when you find it
   - Click the `Download` button at the bottom right
-  - Repeat for lovelace card
-  - Restart Home Assistant
-  - Go to `Devices and Services`
+  - Restart Home Assistant when prompted
+  - Go to `Settings` → `Devices and Services`
   - Click `Add Integration`
-  - Search `Zone Mapper`
-  - Add `Zone Mapper`
+  - Search `Zone Mapper` and add it
+  - Open the new "Zone Mapper" view on your default dashboard, pick the device and target entities on the card, and start drawing
+
+The card repo does not need to be added to HACS separately. It is bundled with this integration.
 
 ### Manual Installation
 
@@ -58,7 +58,7 @@ HACS is like an app store for Home Assistant. It makes installing and updating c
 /config/custom_components/zone_mapper
 ```
 
-2. Add entry to your `configuration.yaml`:
+2. (Optional) add entry to your `configuration.yaml` if you want YAML-mode setup:
 
 ```yaml
 zone_mapper:
@@ -66,7 +66,7 @@ zone_mapper:
 
 3. Restart Home Assistant.
 
-4. Companion card: download `zone-mapper-card.js` from [the card repo](https://github.com/ApolloAutomation/zone-mapper-card) under `/config/www` and add it as a Dashboard Resource.
+4. The bundled card is registered automatically on startup, so no additional dashboard resource step is required. If you prefer to manage the card as a separate resource instead, download `zone-mapper-card.js` from [the card repo](https://github.com/ApolloAutomation/zone-mapper-card) under `/config/www` and add it as a Dashboard Resource.
 
 ## Troubleshooting
 
